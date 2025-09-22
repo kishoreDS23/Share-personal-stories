@@ -1,39 +1,49 @@
-document.addEventListener("DOMContentLoaded", function () {
-    loadStories();
-    checkUser();
-});
+document.addEventListener("DOMContentLoaded", function() {
+    const emailModal = document.getElementById("emailModal");
+    const signInButton = document.getElementById("signIn");
+    const signUpButton = document.getElementById("signUp");
+    const saveProfileButton = document.getElementById("saveProfile");
+    const profileName = document.getElementById("profileName");
+    const profileEmail = document.getElementById("profileEmail");
+    const storyForm = document.getElementById("storyForm");
+    const storiesContainer = document.getElementById("stories");
 
-function checkUser() {
-    const username = localStorage.getItem("username");
-    if (!username) {
-        window.location.href = "auth.html";
-    }
-}
-
-function loadStories() {
-    const stories = JSON.parse(localStorage.getItem("stories")) || [];
-    const storyContainer = document.getElementById("stories");
-
-    storyContainer.innerHTML = "";
-    stories.forEach((story, index) => {
-        let div = document.createElement("div");
-        div.classList.add("story");
-        div.innerHTML = `<h3>${story.title}</h3><p>${story.content}</p><p><strong>By:</strong> ${story.author}</p>`;
-        storyContainer.appendChild(div);
+    signInButton.addEventListener("click", function() {
+        emailModal.style.display = "none";
     });
-}
 
-function searchStories() {
-    let query = document.getElementById("search").value.toLowerCase();
-    let stories = document.getElementsByClassName("story");
-
-    Array.from(stories).forEach(story => {
-        let title = story.getElementsByTagName("h3")[0].innerText.toLowerCase();
-        story.style.display = title.includes(query) ? "block" : "none";
+    signUpButton.addEventListener("click", function() {
+        emailModal.style.display = "none";
     });
-}
 
-document.getElementById("logout")?.addEventListener("click", function () {
-    localStorage.removeItem("username");
-    window.location.href = "auth.html";
+    saveProfileButton.addEventListener("click", function() {
+        localStorage.setItem("profileName", profileName.value);
+        localStorage.setItem("profileEmail", profileEmail.value);
+        alert("Profile saved successfully!");
+    });
+
+    storyForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        const name = document.getElementById("name").value;
+        const story = document.getElementById("story").value;
+
+        if (name && story) {
+            const storyElement = document.createElement("div");
+            storyElement.classList.add("story");
+            storyElement.innerHTML = `<h3>${name}</h3><p>${story}</p>`;
+            storiesContainer.appendChild(storyElement);
+            
+            document.getElementById("name").value = "";
+            document.getElementById("story").value = "";
+        }
+    });
+
+    window.onload = function() {
+        if (localStorage.getItem("profileName")) {
+            profileName.value = localStorage.getItem("profileName");
+        }
+        if (localStorage.getItem("profileEmail")) {
+            profileEmail.value = localStorage.getItem("profileEmail");
+        }
+    };
 });

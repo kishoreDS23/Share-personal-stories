@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>Your Profile</title>
+    <title>Story Sharing</title>
 </head>
 <body>
-    <h1>Your Profile</h1>
-    <p>Welcome, [User  Name]</p>
-    <a href="Home.html">Logout</a>
+    <h1>Welcome to Story Sharing</h1>
+    <a href="signup.html">Sign Up</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html">Profile</a>
 
-    <h2>Your Stories</h2>
-    <div id="userStoriesContainer"></div>
+    <h2>Latest Stories</h2>
+    <div id="storiesContainer"></div>
 
     <script src="script.js"></script>
     <script>
@@ -20,9 +21,9 @@
         fetch('http://localhost/story_sharing_backend/fetch_stories.php')
             .then(response => response.json())
             .then(stories => {
-                const userStoriesContainer = document.getElementById('userStoriesContainer');
+                const storiesContainer = document.getElementById('storiesContainer');
                 if (stories.length === 0) {
-                    userStoriesContainer.innerHTML = '<p>No stories available.</p>';
+                    storiesContainer.innerHTML = '<p>No stories available.</p>';
                 } else {
                     stories.forEach(story => {
                         const storyElement = document.createElement('div');
@@ -33,7 +34,7 @@
                             <p>${story.content}</p>
                             <hr>
                         `;
-                        userStoriesContainer.appendChild(storyElement);
+                        storiesContainer.appendChild(storyElement);
                     });
                 }
             })

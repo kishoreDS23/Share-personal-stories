@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Submit Your Story</title>
+</head>
+<body>
+    <h1>Submit Your Story</h1>
+    <form id="storyForm">
+        <input type="text" name="title" placeholder="Story Title" required>
+        <textarea name="content" placeholder="Write your story here..." required></textarea>
+        <input type="hidden" name="user_id" id="user_id" value=""> 
+        <button type="submit">Submit Story</button>
+    </form>
+
+    <h2>Latest Stories</h2>
+    <div id="storiesContainer"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function getUserId() {
+                const userId = localStorage.getItem('user_id');
+                if (!userId) {
+                    alert("You must be logged in to submit a story.");
+                    window.location.href = "login.html";
+                    return null;
+                }
+                return userId;
+            }
+
+            // Get the user ID and assign it properly
+            const userId = getUserId();
+            if (userId) {
+                document.getElementById('user_id').value = userId;
+                fetchStories();
+            }
+
+            function fetchStories() {
+                fetch('http://localhost/story_sharing_backend/fetch_stories.php')
+                    .then(response => response.json())
+                    .then(stories => {
+                        const storiesContainer = document.getElementById('storiesContainer');
+                        storiesContainer.innerHTML = '';
+                        if (stories.length === 0) {
+                            storiesContainer.innerHTML = '<p>No stories available.</p>';
+                        } else {
+                            stories.forEach(story => {
+                                const storyElement = document.createElement('div');
+                                storyElement.classList.add('story');
+                                storyElement.innerHTML = `
+                                    <h3>${story.title}</h3>
+                                    <p><strong>By: ${story.username}</strong></p>
+                                    <p>${story.content}</p>
+                                    <hr>
+                                `;
+                                storiesContainer.appendChild(storyElement);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching stories:', error);
+                    });
+            }
+
+            document.getElementById('storyForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const userIdField = document.getElementById('user_id').value;
+                if (!userIdField) {
+                    alert("Error: User not logged in.");
+                    return;
+                }
+
+                const formData = new FormData(this);
+                fetch('http://localhost/story_sharing_backend/submit_story.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Story submitted successfully!");
+                        fetchStories();
+                        this.reset();
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting story:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
